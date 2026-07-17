@@ -1,5 +1,7 @@
-﻿using FavoritePlacesApi.Data;
-using FavoritePlacesApi.Models;
+﻿
+using Domain.Database;
+using Domain.Database.Context;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.Entity;
@@ -11,9 +13,9 @@ namespace FavoritePlacesApi.Controllers
     [ApiController]
     public class PlacesController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
+        private readonly FavoritePlacesContext _context;
 
-        public PlacesController(ApplicationDBContext context)
+        public PlacesController(FavoritePlacesContext context)
         {
             _context = context; 
         }

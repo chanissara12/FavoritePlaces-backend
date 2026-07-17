@@ -1,5 +1,7 @@
-using FavoritePlacesApi.Data;
+using Domain.Database.Context;
+using Domain.Interfaces.UsersManagement;
 using Microsoft.EntityFrameworkCore;
+using Services.Implements.UsersManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,11 +21,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 
 // Add DbContext
-builder.Services.AddDbContext<ApplicationDBContext>(options =>
+builder.Services.AddDbContext<FavoritePlacesContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddScoped<IUsersService, UsersService>();
 
 var app = builder.Build();
 

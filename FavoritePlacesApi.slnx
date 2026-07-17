@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="../Domain/Domain.csproj" Id="58421b0a-80f6-4d07-8902-f5ce3e2d92ba" />
+  <Project Path="../Services/Services.csproj" Id="8752f694-cb1a-4100-814b-6a833207fae3" />
   <Project Path="FavoritePlacesApi.csproj" />
 </Solution>

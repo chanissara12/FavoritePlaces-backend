@@ -1,11 +1,14 @@
-﻿using FavoritePlacesApi.Data;
-using FavoritePlacesApi.Models;
+﻿
+using System.Data.Entity;
+using Domain.Database;
+using Domain.Database.Context;
+using Domain.Interfaces.UsersManagement;
+using Domain.ViewModels.UsersManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Data.Entity;
 
 namespace FavoritePlacesApi.Controllers
 {
@@ -13,31 +16,41 @@ namespace FavoritePlacesApi.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
+        private readonly FavoritePlacesContext _context;
+        private readonly IUsersService _users;
 
-        public UsersController(ApplicationDBContext context)
+        public UsersController(FavoritePlacesContext context, IUsersService users)
         {
             _context = context;
+            _users = users;
         }
 
-        [HttpGet]
-        public ActionResult<IEnumerable<Users>> Get()
-        {
-            var users = _context.Users.ToList();
+        //[HttpGet]
+        //public ActionResult<IEnumerable<Users>> Get()
+        //{
+        //    var users = _context.Users.ToList();
 
-            return Ok(new { users = users });
+        //    return Ok(new { users = users });
+        //}
+
+        [HttpGet("GetUsers")]
+        public ActionResult<List<Users>> GetUsers()
+        {
+            var users = _users.GetUsers();
+
+            return Ok(new GetUsersViewModel { users = users });
         }
 
         [HttpGet("user-places")]
         public ActionResult<IEnumerable<UserFavoritePlaces>> GetUserPlaces(int user_id)
         {
             var placeIds = _context.UserFavoritePlaces
-                                   .Where(userPlace => userPlace.user_id == user_id) // หาที่ user_id เหมือนกัน
-                                   .Select(userPlace => userPlace.place_id) //เลือก place_id ทั้งหมดที่ user_id เหมือนกัน
+                                   .Where(userPlace => userPlace.UserId == user_id) // หาที่ user_id เหมือนกัน
+                                   .Select(userPlace => userPlace.PlaceId) //เลือก place_id ทั้งหมดที่ user_id เหมือนกัน
                                    .ToArray();
 
             var userPlaces = _context.Places
-                                         .Where(p => placeIds.Contains(p.place_id)) //เลือก place ที่ place_id เหมือนกัน
+                                         .Where(p => placeIds.Contains(p.PlaceId)) //เลือก place ที่ place_id เหมือนกัน
                                          .ToList();
 
             return Ok(new { places = userPlaces });
@@ -54,8 +67,8 @@ namespace FavoritePlacesApi.Controllers
             }
 
             var LoggedinUser = _context.Users.Where(userData =>
-                userData.user_name == user_name
-                && userData.password == password);
+                userData.UserName == user_name
+                && userData.Password == password);
             if (LoggedinUser.IsNullOrEmpty())
             {
                 return NotFound();
@@ -73,12 +86,12 @@ namespace FavoritePlacesApi.Controllers
                 return BadRequest("Missing username or password.");
             }
 
-            if (!_context.Users.Where(userData => userData.user_name == user_name).IsNullOrEmpty())
+            if (!_context.Users.Where(userData => userData.UserName == user_name).IsNullOrEmpty())
             {
                 return BadRequest("Already has this username.");
             }
 
-            var newUser = new Users { user_name = user_name, password = password }; //สร้าง user ใหม่ ไม่ต้องใส่ id เนื่องจากมี auto increment ใน database
+            var newUser = new Users { UserName = user_name, Password = password }; //สร้าง user ใหม่ ไม่ต้องใส่ id เนื่องจากมี auto increment ใน database
 
             _context.Users.Add(newUser); //เพิ่ม user ลงในฐานข้อมูล
 
@@ -102,7 +115,7 @@ namespace FavoritePlacesApi.Controllers
             [FromQuery(Name = "place_id")] int place_id)
         {
             var deletedCount = await _context.UserFavoritePlaces
-                .Where(x => x.user_id == user_id && x.place_id == place_id) //เลือกที่ user_id และ place_id ตรงกัน
+                .Where(x => x.UserId == user_id && x.PlaceId == place_id) //เลือกที่ user_id และ place_id ตรงกัน
                 .ExecuteDeleteAsync();
 
             if (deletedCount == 0)
