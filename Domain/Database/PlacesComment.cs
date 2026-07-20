@@ -13,7 +13,7 @@ public partial class PlacesComment
 
     public double Rating { get; set; }
 
-    public double? Comment { get; set; }
+    public string Comment { get; set; }
 
     public virtual Places Place { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using Domain.Database;
+﻿using System.Runtime.CompilerServices;
+using Domain.Database;
 using Domain.Database.Context;
 using Domain.Interfaces.ImageManagement;
 using Domain.Interfaces.PlacesManagement;
@@ -27,7 +28,7 @@ namespace Services.Implements.PlacesManagement
 
         public List<Places> GetAvailablePlaces()
         {
-            var availablePlaces = _context.Places.Where(p => p.IsApproved == "Y").ToList();
+            var availablePlaces = _context.Places.Where(p => p.IsApproved == "Y" && p.IsDeleted == "N").ToList();
 
             return availablePlaces;
             //throw new NotImplementedException();
@@ -53,6 +54,12 @@ namespace Services.Implements.PlacesManagement
             var unapprovePlaces = _context.Places.Where(p => p.IsApproved == "N").ToList();
             return unapprovePlaces;
             //throw new NotImplementedException();
+        }
+
+        public List<PlacesComment> GetPlacesComments()
+        {
+            var placesComments = _context.PlacesComment.ToList();
+            return placesComments;
         }
         
         public async Task PostNewPlace(string title, string alt, string add_by, string isApproved, IFormFile formFile)
@@ -105,6 +112,20 @@ namespace Services.Implements.PlacesManagement
                 throw new KeyNotFoundException("There no place to delete"); // ไม่มีข้อมูลถูกลบ
             }
             //throw new NotImplementedException();
+        }
+
+        public async Task DeletePlace(int placeId)
+        {
+            var placeToBeDeleted = _context.Places.Find(placeId);
+
+            if (placeToBeDeleted != null)
+            {
+                placeToBeDeleted.IsDeleted = "Y";
+                await _context.SaveChangesAsync();
+            } else
+            {
+                throw new KeyNotFoundException("No place to delete.");
+            }
         }
     }
 }

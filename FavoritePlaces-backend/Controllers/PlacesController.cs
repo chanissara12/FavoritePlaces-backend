@@ -1,4 +1,5 @@
 ﻿
+using Azure.Core;
 using Domain.Database;
 using Domain.Database.Context;
 using Domain.Interfaces.ImageManagement;
@@ -55,6 +56,14 @@ namespace FavoritePlacesApi.Controllers
             return Ok(new { places = unapprovePlaces });
         }
 
+        [HttpGet("places-comments")]
+        public ActionResult<IEnumerable<UserFavoritePlaces>> GetPlacesComments()
+        {
+            var placesComments = _placesService.GetPlacesComments();
+
+            return Ok(new { comments = placesComments });
+        }
+
         [HttpPost("new-place")]
         public async Task<IActionResult> PostNewPlaces(
             [FromForm] string title, 
@@ -92,6 +101,21 @@ namespace FavoritePlacesApi.Controllers
             await _placesService.DeleteUserPlace(userId, placeId);
 
             return Ok();
+        }
+
+        [HttpPost("delete-place")]
+        public async Task<IActionResult> DeletePlace(int placeId)
+        {
+            try
+            {
+                await _placesService.DeletePlace(placeId);
+
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

@@ -13,6 +13,8 @@ namespace Domain.Interfaces.PlacesManagement
 
         List<Places> GetUnapprovePlaces();
 
+        List<PlacesComment> GetPlacesComments();
+
         Task PostNewPlace(string title, string alt, string add_by, string isApprove, IFormFile formFile);
 
         Task PostApproveUserAddedPlace(int placeId);
@@ -20,5 +22,7 @@ namespace Domain.Interfaces.PlacesManagement
         Task PostUserPlace(UserFavoritePlaces userFavoritePlaces);
 
         Task DeleteUserPlace(int userId, int placeId);
+
+        Task DeletePlace(int placeId);
     }
 }

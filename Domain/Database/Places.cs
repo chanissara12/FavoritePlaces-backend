@@ -19,5 +19,7 @@ public partial class Places
 
     public string IsApproved { get; set; }
 
+    public string IsDeleted { get; set; }
+
     public virtual ICollection<UserFavoritePlaces> UserFavoritePlaces { get; set; } = new List<UserFavoritePlaces>();
 }

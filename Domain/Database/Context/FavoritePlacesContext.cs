@@ -71,6 +71,14 @@ public partial class FavoritePlacesContext : DbContext
                 .IsFixedLength()
                 .HasAnnotation("Relational:DefaultConstraintName", "DF_Places_isApproved")
                 .HasColumnName("isApproved");
+            entity.Property(e => e.IsDeleted)
+                .IsRequired()
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasDefaultValue("N")
+                .IsFixedLength()
+                .HasAnnotation("Relational:DefaultConstraintName", "DF_Places_isDeleted")
+                .HasColumnName("isDeleted");
             entity.Property(e => e.Title)
                 .IsRequired()
                 .HasMaxLength(50)
@@ -82,7 +90,9 @@ public partial class FavoritePlacesContext : DbContext
         {
             entity.HasNoKey();
 
-            entity.Property(e => e.Comment).HasColumnName("comment");
+            entity.Property(e => e.Comment)
+                .HasColumnType("text")
+                .HasColumnName("comment");
             entity.Property(e => e.PlaceId).HasColumnName("place_id");
             entity.Property(e => e.Rating).HasColumnName("rating");
             entity.Property(e => e.UserId).HasColumnName("user_id");
