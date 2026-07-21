@@ -4,6 +4,7 @@ using Domain.Database;
 using Domain.Database.Context;
 using Domain.Interfaces.ImageManagement;
 using Domain.Interfaces.PlacesManagement;
+using Domain.ViewModels.PlacesManagement;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FavoritePlacesApi.Controllers
@@ -57,9 +58,9 @@ namespace FavoritePlacesApi.Controllers
         }
 
         [HttpGet("places-comments")]
-        public ActionResult<IEnumerable<UserFavoritePlaces>> GetPlacesComments()
+        public async Task<IActionResult> GetPlacesComments()
         {
-            var placesComments = _placesService.GetPlacesComments();
+            var placesComments = await _placesService.GetPlacesComments();
 
             return Ok(new { comments = placesComments });
         }
@@ -104,7 +105,7 @@ namespace FavoritePlacesApi.Controllers
         }
 
         [HttpPost("delete-place")]
-        public async Task<IActionResult> DeletePlace(int placeId)
+        public async Task<IActionResult> DeletePlace([FromBody] int placeId)
         {
             try
             {

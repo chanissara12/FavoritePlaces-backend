@@ -1,8 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 using Domain.Database;
 using Domain.Database.Context;
+using Domain.Exceptions;
 using Domain.Interfaces.ImageManagement;
 using Domain.Interfaces.PlacesManagement;
+using Domain.ViewModels.PlacesManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +38,11 @@ namespace Services.Implements.PlacesManagement
 
         public List<Places> GetUserPlaces(int userId)
         {
+            //var user = _context.Users.Find(userId);
+
+            //if (user == null)
+            //    throw new ValidateException("Invalid user.");
+
             var placeIds = _context.UserFavoritePlaces
                                    .Where(userPlace => userPlace.UserId == userId) // หาที่ user_id เหมือนกัน
                                    .Select(userPlace => userPlace.PlaceId) //เลือก place_id ทั้งหมดที่ user_id เหมือนกัน
@@ -46,25 +53,38 @@ namespace Services.Implements.PlacesManagement
                                          .ToList();
 
             return userPlaces;
-            //throw new NotImplementedException();
         }
 
         public List<Places> GetUnapprovePlaces()
         {
             var unapprovePlaces = _context.Places.Where(p => p.IsApproved == "N").ToList();
             return unapprovePlaces;
-            //throw new NotImplementedException();
         }
 
-        public List<PlacesComment> GetPlacesComments()
+        public async Task<List<PlacesCommentViewModel>> GetPlacesComments()
         {
-            var placesComments = _context.PlacesComment.ToList();
+            var placesComments = await _context.PlacesComment
+                .Select(c => new PlacesCommentViewModel
+                {
+                    PlaceId = c.PlaceId,
+                    UserId = c.UserId,
+                    Comment = c.Comment,
+                    Rating = c.Rating,
+
+                    UserName = c.User.UserName,
+                    Title = c.Place.Title
+                })
+                .ToListAsync();
+
             return placesComments;
         }
         
         public async Task PostNewPlace(string title, string alt, string add_by, string isApproved, IFormFile formFile)
         {
             var result = await _imageService.UploadImageAsync(formFile);
+
+            if (result == null)
+                throw new ValidateException("No file uploaded.");
 
             var places = new Places
             {
@@ -76,7 +96,6 @@ namespace Services.Implements.PlacesManagement
             };
             _context.Places.Add(places);
             _context.SaveChanges();
-            //throw new NotImplementedException();
         }
 
         public async Task PostApproveUserAddedPlace(int placeId)
@@ -89,29 +108,41 @@ namespace Services.Implements.PlacesManagement
                 place.IsApproved = "Y";
 
                 await _context.SaveChangesAsync(); //save ลงฐานข้อมูล
+            } else
+            {
+                throw new ValidateException("Invalid place.");
             }
-            //throw new NotImplementedException();
         }
 
         public async Task PostUserPlace(UserFavoritePlaces userFavoritePlaces)
         {
+            if (userFavoritePlaces == null)
+            {
+                throw new ValidateException("There is no place to add.");
+            }
             _context.UserFavoritePlaces.Add(userFavoritePlaces);
 
             await _context.SaveChangesAsync(); //save ลงฐานข้อมูล
-            //throw new NotImplementedException();
         }
 
         public async Task DeleteUserPlace(int userId, int placeId)
         {
+            var placeToBeDeleted = _context.UserFavoritePlaces
+                .Where(x => x.UserId == userId && x.PlaceId == placeId);
+
+            if (placeToBeDeleted == null)
+            {
+                throw new KeyNotFoundException("There is no place to delete."); // ไม่มีข้อมูลถูกลบ
+            }
+
             var deletedCount = await _context.UserFavoritePlaces
                 .Where(x => x.UserId == userId && x.PlaceId == placeId) //เลือกที่ user_id และ place_id ตรงกัน
                 .ExecuteDeleteAsync();
 
             if (deletedCount == 0)
             {
-                throw new KeyNotFoundException("There no place to delete"); // ไม่มีข้อมูลถูกลบ
+                throw new KeyNotFoundException("There is no place deleted."); // ไม่มีข้อมูลถูกลบ
             }
-            //throw new NotImplementedException();
         }
 
         public async Task DeletePlace(int placeId)
@@ -124,7 +155,7 @@ namespace Services.Implements.PlacesManagement
                 await _context.SaveChangesAsync();
             } else
             {
-                throw new KeyNotFoundException("No place to delete.");
+                throw new KeyNotFoundException("There is no place to delete.");
             }
         }
     }

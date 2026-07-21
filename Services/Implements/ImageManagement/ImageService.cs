@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Domain.Exceptions;
 using Domain.Interfaces.ImageManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -41,6 +42,9 @@ namespace Services.Implements.ImageManagement
                     UniqueFilename = true
                 };
                 uploadResult = await _cloudinary.UploadAsync(uploadParams); //อัปโหลดรูปภาพไปยัง Cloudinary
+            } else
+            {
+                throw new ValidateException("No file uploaded");
             }
             return uploadResult;
         }

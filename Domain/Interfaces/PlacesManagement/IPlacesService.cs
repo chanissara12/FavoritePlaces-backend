@@ -1,4 +1,5 @@
 ﻿using Domain.Database;
+using Domain.ViewModels.PlacesManagement;
 using Microsoft.AspNetCore.Http;
 
 namespace Domain.Interfaces.PlacesManagement
@@ -13,7 +14,7 @@ namespace Domain.Interfaces.PlacesManagement
 
         List<Places> GetUnapprovePlaces();
 
-        List<PlacesComment> GetPlacesComments();
+        Task<List<PlacesCommentViewModel>> GetPlacesComments();
 
         Task PostNewPlace(string title, string alt, string add_by, string isApprove, IFormFile formFile);
 

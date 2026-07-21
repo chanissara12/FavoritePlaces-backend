@@ -1,5 +1,6 @@
 ﻿using Domain.Database;
 using Domain.Database.Context;
+using Domain.Exceptions;
 using Domain.Interfaces.UsersManagement;
 using Domain.ViewModels.UsersManagement;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,7 @@ namespace Services.Implements.UsersManagement
             //เช็คว่ามี user ในระบบไหม
             if (LoggedinUser == null)
             {
-                throw new KeyNotFoundException("Invalid Username or Password");
+                throw new ValidateException("Invalid Username or Password");
             }
 
             // ดึงข้อมูล role
@@ -52,7 +53,7 @@ namespace Services.Implements.UsersManagement
             //เช็คว่ามี user ตามเงื่อนไขไหม
             if (_context.Users.Any(u => u.UserName == request.userName))
             {
-                throw new KeyNotFoundException("Already have this username. Please change username and try again.");
+                throw new ValidateException("Already have this username. Please change username and try again.");
             }
 
             var newUser = new Users { UserName = request.userName, Password = request.password };
