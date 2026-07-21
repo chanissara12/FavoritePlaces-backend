@@ -1,6 +1,7 @@
 ﻿
 using Domain.Database;
 using Domain.Database.Context;
+using Domain.Exceptions;
 using Domain.Interfaces.UsersManagement;
 using Domain.ViewModels.UsersManagement;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +45,7 @@ namespace FavoritePlacesApi.Controllers
                 var LoggedinUser = await _users.LoginUser(request);
 
                 return Ok(new { currentUser = LoggedinUser });
-            } catch (KeyNotFoundException ex)
+            } catch (ValidateException ex)
             {
                 return NotFound(ex.Message);
             }
@@ -59,7 +60,7 @@ namespace FavoritePlacesApi.Controllers
 
                 return Ok(new { currentUser = registeredUser });
             }
-            catch (KeyNotFoundException ex)
+            catch (ValidateException ex)
             {
                 return NotFound(ex.Message);
             }

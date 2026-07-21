@@ -2,6 +2,7 @@
 using Azure.Core;
 using Domain.Database;
 using Domain.Database.Context;
+using Domain.Exceptions;
 using Domain.Interfaces.ImageManagement;
 using Domain.Interfaces.PlacesManagement;
 using Domain.ViewModels.PlacesManagement;
@@ -73,25 +74,46 @@ namespace FavoritePlacesApi.Controllers
             [FromForm] string isApproved, 
             [FromForm] IFormFile formFile)
         {
-            await _placesService.PostNewPlace(title, alt, add_by, isApproved, formFile);
+            try
+            {
+                await _placesService.PostNewPlace(title, alt, add_by, isApproved, formFile);
 
-            return Ok();
+                return Ok();
+            } catch (ValidateException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            
         }
 
         [HttpPost("user-places/approve-place")]
         public async Task<IActionResult> AprroveUserAvailablePlacesAsync([FromBody] int placeId)
         {
-            await _placesService.PostApproveUserAddedPlace(placeId);
+            try
+            {
+                await _placesService.PostApproveUserAddedPlace(placeId);
 
-            return Ok();
+                return Ok();
+            }
+            catch (ValidateException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPost("user-places/post")]
         public async Task<IActionResult> PostUserPlacesAsync([FromBody] UserFavoritePlaces favoritePlace)
         {
-            await _placesService.PostUserPlace(favoritePlace);
+            try
+            {
+                await _placesService.PostUserPlace(favoritePlace);
 
-            return Ok();
+                return Ok();
+            }
+            catch (ValidateException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("user-places/delete")]
@@ -99,9 +121,16 @@ namespace FavoritePlacesApi.Controllers
             [FromQuery(Name = "userId")] int userId,
             [FromQuery(Name = "placeId")] int placeId)
         {
-            await _placesService.DeleteUserPlace(userId, placeId);
+            try
+            {
+                await _placesService.DeleteUserPlace(userId, placeId);
 
-            return Ok();
+                return Ok();
+            }
+            catch (ValidateException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPost("delete-place")]
@@ -113,7 +142,7 @@ namespace FavoritePlacesApi.Controllers
 
                 return Ok();
             }
-            catch (KeyNotFoundException ex)
+            catch (ValidateException ex)
             {
                 return NotFound(ex.Message);
             }
