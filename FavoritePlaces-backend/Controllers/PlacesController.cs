@@ -60,9 +60,9 @@ namespace FavoritePlacesApi.Controllers
         }
 
         [HttpGet("places-comments")]
-        public async Task<IActionResult> GetPlacesComments()
+        public async Task<IActionResult> GetPlacesComments(int placeId)
         {
-            var placesComments = await _placesService.GetPlacesComments();
+            var placesComments = await _placesService.GetPlacesComments(placeId);
 
             return Ok(new { comments = placesComments });
         }

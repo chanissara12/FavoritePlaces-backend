@@ -14,7 +14,7 @@ namespace Domain.Interfaces.PlacesManagement
 
         List<Places> GetUnapprovePlaces();
 
-        Task<List<PlacesCommentViewModel>> GetPlacesComments();
+        Task<List<PlacesCommentViewModel>> GetPlacesComments(int placeId);
 
         Task PostNewPlace(string title, string alt, string add_by, string isApprove, string uploadedUserId, IFormFile formFile);
 
