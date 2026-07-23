@@ -52,6 +52,8 @@ public partial class FavoritePlacesContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false)
+                .HasDefaultValue("user")
+                .HasAnnotation("Relational:DefaultConstraintName", "DF_Places_add_by")
                 .HasColumnName("add_by");
             entity.Property(e => e.ImgAlt)
                 .IsRequired()
@@ -84,28 +86,29 @@ public partial class FavoritePlacesContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("title");
+            entity.Property(e => e.UploadedUserId).HasColumnName("uploaded_user_id");
         });
 
         modelBuilder.Entity<PlacesComment>(entity =>
         {
-            entity.HasNoKey();
+            entity.HasKey(e => new { e.UserId, e.PlaceId });
 
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.PlaceId).HasColumnName("place_id");
             entity.Property(e => e.Comment)
                 .HasColumnType("text")
                 .HasColumnName("comment");
-            entity.Property(e => e.PlaceId).HasColumnName("place_id");
             entity.Property(e => e.Rating).HasColumnName("rating");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
 
-            entity.HasOne(d => d.Place).WithMany()
+            entity.HasOne(d => d.Place).WithMany(p => p.PlacesComment)
                 .HasForeignKey(d => d.PlaceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PlacesCom__place__3E52440B");
+                .HasConstraintName("FK_PlacesComment_Places");
 
-            entity.HasOne(d => d.User).WithMany()
+            entity.HasOne(d => d.User).WithMany(p => p.PlacesComment)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PlacesCom__user___3F466844");
+                .HasConstraintName("FK_PlacesComment_Users");
         });
 
         modelBuilder.Entity<UserFavoritePlaces>(entity =>

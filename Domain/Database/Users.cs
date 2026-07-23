@@ -13,6 +13,8 @@ public partial class Users
 
     public string Password { get; set; }
 
+    public virtual ICollection<PlacesComment> PlacesComment { get; set; } = new List<PlacesComment>();
+
     public virtual ICollection<UserFavoritePlaces> UserFavoritePlaces { get; set; } = new List<UserFavoritePlaces>();
 
     public virtual ICollection<UserRole> UserRole { get; set; } = new List<UserRole>();

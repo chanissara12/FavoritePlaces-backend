@@ -40,30 +40,17 @@ namespace FavoritePlacesApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> PostUserPlacesAsync([FromBody] UserLoginViewModel request)
         {
-            try
-            {
-                var LoggedinUser = await _users.LoginUser(request);
+            var LoggedinUser = await _users.LoginUser(request);
 
-                return Ok(new { currentUser = LoggedinUser });
-            } catch (ValidateException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return Ok(new { currentUser = LoggedinUser });
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> PostUserAsync([FromBody] UserLoginViewModel request)
         {
-            try
-            {
-                var registeredUser = await _users.RegisterUser(request);
+            var registeredUser = await _users.RegisterUser(request);
 
-                return Ok(new { currentUser = registeredUser });
-            }
-            catch (ValidateException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return Ok(new { currentUser = registeredUser });
         }
     }
 }

@@ -34,16 +34,17 @@ namespace FavoritePlacesApi.Controllers
             return Ok(new { places = places });
         }
 
-        [HttpGet("available-places")]
-        public ActionResult<List<Places>> GetAvailablePlaces()
+        [HttpGet("GetAvailablePlaces")]
+        public async Task<IActionResult> GetAvailablePlaces(int userId)
+        //public ActionResult<IEnumerable<PlacesViewModel>> GetAvailablePlaces(int userId)
         {
-            var availablePlaces = _placesService.GetAvailablePlaces();
+            var availablePlaces = await _placesService.GetAvailablePlaces(userId);
 
             return Ok(new { places = availablePlaces });
         }
 
-        [HttpGet("user-places")]
-        public ActionResult<IEnumerable<UserFavoritePlaces>> GetUserPlaces(int userId)
+        [HttpGet("GetUserPlaces")]
+        public ActionResult<IEnumerable<PlacesViewModel>> GetUserPlaces(int userId)
         {
             var userPlaces = _placesService.GetUserPlaces(userId);
 
@@ -72,48 +73,28 @@ namespace FavoritePlacesApi.Controllers
             [FromForm] string alt, 
             [FromForm] string add_by, 
             [FromForm] string isApproved, 
+            [FromForm] string uploadedUserId, 
             [FromForm] IFormFile formFile)
         {
-            try
-            {
-                await _placesService.PostNewPlace(title, alt, add_by, isApproved, formFile);
+            await _placesService.PostNewPlace(title, alt, add_by, isApproved, uploadedUserId, formFile);
 
-                return Ok();
-            } catch (ValidateException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            
+            return Ok();
         }
 
         [HttpPost("user-places/approve-place")]
         public async Task<IActionResult> AprroveUserAvailablePlacesAsync([FromBody] int placeId)
         {
-            try
-            {
-                await _placesService.PostApproveUserAddedPlace(placeId);
+            await _placesService.PostApproveUserAddedPlace(placeId);
 
-                return Ok();
-            }
-            catch (ValidateException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return Ok();
         }
 
         [HttpPost("user-places/post")]
         public async Task<IActionResult> PostUserPlacesAsync([FromBody] UserFavoritePlaces favoritePlace)
         {
-            try
-            {
-                await _placesService.PostUserPlace(favoritePlace);
+            await _placesService.PostUserPlace(favoritePlace);
 
-                return Ok();
-            }
-            catch (ValidateException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return Ok();
         }
 
         [HttpDelete("user-places/delete")]
@@ -121,31 +102,17 @@ namespace FavoritePlacesApi.Controllers
             [FromQuery(Name = "userId")] int userId,
             [FromQuery(Name = "placeId")] int placeId)
         {
-            try
-            {
-                await _placesService.DeleteUserPlace(userId, placeId);
+            await _placesService.DeleteUserPlace(userId, placeId);
 
-                return Ok();
-            }
-            catch (ValidateException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return Ok();
         }
 
         [HttpPost("delete-place")]
         public async Task<IActionResult> DeletePlace([FromBody] int placeId)
         {
-            try
-            {
-                await _placesService.DeletePlace(placeId);
+            await _placesService.DeletePlace(placeId);
 
-                return Ok();
-            }
-            catch (ValidateException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return Ok();
         }
     }
 }

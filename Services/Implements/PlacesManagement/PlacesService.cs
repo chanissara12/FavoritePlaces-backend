@@ -28,15 +28,38 @@ namespace Services.Implements.PlacesManagement
             //throw new NotImplementedException();
         }
 
-        public List<Places> GetAvailablePlaces()
+        public async Task<List<PlacesViewModel>> GetAvailablePlaces(int? userId)
         {
-            var availablePlaces = _context.Places.Where(p => p.IsApproved == "Y" && p.IsDeleted == "N").ToList();
+            //var availablePlaces = _context.Places.Where(p => p.IsApproved == "Y" && p.IsDeleted == "N").ToList();
+            //bool isFav = 
+            //_context.Users.Where(x => x.UserId == c.UploadedUserId).Select(x => x.UserName);
+
+            var availablePlaces = await _context.Places
+                                    .Include(x => x.UserFavoritePlaces)
+                                    .Include(x => x.PlacesComment)
+                                    .Where(p => p.IsApproved == "Y" && p.IsDeleted == "N") //เลือก place ที่ place_id เหมือนกัน
+                                    .Select(c => new PlacesViewModel
+                                    {
+                                        PlaceId = c.PlaceId,
+                                        Title = c.Title,
+                                        ImgSrc = c.ImgSrc,
+                                        ImgAlt = c.ImgAlt,
+                                        AddBy = c.AddBy,
+                                        IsApproved = c.IsApproved,
+                                        IsDeleted = c.IsDeleted,
+                                        UploadedUserId = c.UploadedUserId,
+
+                                        IsFav = userId == null ? false : c.UserFavoritePlaces.Any(x => x.UserId == userId),
+                                        CommentCount = c.PlacesComment.Count(),
+                                        AllowDelete = true,
+                                    })
+                                    .ToListAsync();
 
             return availablePlaces;
             //throw new NotImplementedException();
         }
 
-        public List<Places> GetUserPlaces(int userId)
+        public List<PlacesViewModel> GetUserPlaces(int userId)
         {
             //var user = _context.Users.Find(userId);
 
@@ -49,8 +72,25 @@ namespace Services.Implements.PlacesManagement
                                    .ToList();
 
             var userPlaces = _context.Places
-                                         .Where(p => placeIds.Contains(p.PlaceId)) //เลือก place ที่ place_id เหมือนกัน
-                                         .ToList();
+                                    .Include(x => x.UserFavoritePlaces)
+                                    .Include(x => x.PlacesComment)
+                                    .Where(p => placeIds.Contains(p.PlaceId)) //เลือก place ที่ place_id เหมือนกัน
+                                    .Select(c => new PlacesViewModel
+                                    {
+                                        PlaceId = c.PlaceId,
+                                        Title = c.Title,
+                                        ImgSrc = c.ImgSrc,
+                                        ImgAlt = c.ImgAlt,
+                                        AddBy = c.AddBy,
+                                        IsApproved = c.IsApproved,
+                                        IsDeleted = c.IsDeleted,
+                                        UploadedUserId = c.UploadedUserId,
+
+                                        IsFav = c.UserFavoritePlaces.Any(x => x.UserId == userId),
+                                        CommentCount = c.PlacesComment.Count(),
+                                        AllowDelete = true,
+                                    })
+                                    .ToList();
 
             return userPlaces;
         }
@@ -79,7 +119,13 @@ namespace Services.Implements.PlacesManagement
             return placesComments;
         }
         
-        public async Task PostNewPlace(string title, string alt, string add_by, string isApproved, IFormFile formFile)
+        public async Task PostNewPlace(
+            string title, 
+            string alt, 
+            string add_by, 
+            string isApproved, 
+            string uploaded_user_id,
+            IFormFile formFile)
         {
             var result = await _imageService.UploadImageAsync(formFile);
 
@@ -92,7 +138,8 @@ namespace Services.Implements.PlacesManagement
                 ImgSrc = result.SecureUrl.AbsoluteUri,
                 ImgAlt = alt,
                 AddBy = add_by,
-                IsApproved = isApproved
+                IsApproved = isApproved,
+                UploadedUserId = int.Parse(uploaded_user_id)
             };
             _context.Places.Add(places);
             _context.SaveChanges();

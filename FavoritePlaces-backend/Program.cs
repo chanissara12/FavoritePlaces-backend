@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Services.Implements.ImageManagement;
 using Services.Implements.PlacesManagement;
 using Services.Implements.UsersManagement;
+using Web.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend"); //ทำให้ใช้กับ frontend ได้
+
+app.UseCustomExceptionHandler(
+    app.Services.GetRequiredService<IServiceProvider>());
 
 app.UseAuthorization();
 

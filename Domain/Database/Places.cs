@@ -21,5 +21,9 @@ public partial class Places
 
     public string IsDeleted { get; set; }
 
+    public int UploadedUserId { get; set; }
+
+    public virtual ICollection<PlacesComment> PlacesComment { get; set; } = new List<PlacesComment>();
+
     public virtual ICollection<UserFavoritePlaces> UserFavoritePlaces { get; set; } = new List<UserFavoritePlaces>();
 }

@@ -8,15 +8,15 @@ namespace Domain.Interfaces.PlacesManagement
     {
         List<Places> GetPlaces();
 
-        List<Places> GetAvailablePlaces();
+        Task<List<PlacesViewModel>> GetAvailablePlaces(int? userId);
 
-        List<Places> GetUserPlaces(int userId);
+        List<PlacesViewModel> GetUserPlaces(int userId);
 
         List<Places> GetUnapprovePlaces();
 
         Task<List<PlacesCommentViewModel>> GetPlacesComments();
 
-        Task PostNewPlace(string title, string alt, string add_by, string isApprove, IFormFile formFile);
+        Task PostNewPlace(string title, string alt, string add_by, string isApprove, string uploadedUserId, IFormFile formFile);
 
         Task PostApproveUserAddedPlace(int placeId);
 
